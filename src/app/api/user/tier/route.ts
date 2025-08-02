@@ -9,6 +9,7 @@ import type { TierType } from "@/lib/types"
 export async function GET() {
   try {
     const { userId } = await auth()
+    console.log("User ID from auth:", userId)
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
