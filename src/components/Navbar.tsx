@@ -6,7 +6,13 @@ import { TierBadge } from './TierBadge';
 
 export function NavBar() {
   const { user } = useUser();
-  const userTier = (user?.publicMetadata?.tier as string) || 'free';
+  
+  // Get tier from either metadata source with fallback
+  const userTier = (
+    user?.publicMetadata?.tier as string ||
+    user?.unsafeMetadata?.tier as string ||
+    'free'
+  );
 
   return (
     <nav className="bg-white shadow-sm border-b">
