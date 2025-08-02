@@ -1,15 +1,13 @@
 "use client"
 
-import { UserButton, useUser } from "@clerk/nextjs"
+import { UserButton } from "@clerk/nextjs"
 import Link from "next/link"
 import { TierBadge } from "./TierBadge"
 import { Sparkles } from "lucide-react"
+import { useUserTier } from "@/hooks/use-user-tier"
 
 export function NavBar() {
-  const { user } = useUser()
-
-  // Get tier from either metadata source with fallback
-  const userTier = (user?.publicMetadata?.tier as string) || (user?.unsafeMetadata?.tier as string) || "free"
+  const { tier, user, isLoading } = useUserTier()
 
   return (
     <nav className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-50">
@@ -30,7 +28,11 @@ export function NavBar() {
           <div className="flex items-center space-x-4">
             {user && (
               <>
-                <TierBadge tier={userTier as any} />
+                {isLoading ? (
+                  <div className="animate-pulse bg-slate-200 rounded-full h-6 w-16"></div>
+                ) : (
+                  <TierBadge tier={tier} />
+                )}
                 <div className="hidden sm:block">
                   <span className="text-sm text-slate-600 font-medium">
                     {user.firstName} {user.lastName}

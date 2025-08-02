@@ -3,8 +3,8 @@
 import type { TierType } from "@/lib/types"
 import { TierBadge } from "./TierBadge"
 import { Lock, ArrowUp, CheckCircle, Sparkles, Crown, Gem } from "lucide-react"
-import { useUser } from "@clerk/nextjs"
-import { useState, useEffect } from "react"
+import { useState } from "react"
+import { useUserTier } from "@/hooks/use-user-tier"
 
 interface TierUpgradeCardProps {
   requiredTier: TierType
@@ -33,57 +33,52 @@ const tierGradients = {
 }
 
 export function TierUpgradeCard({ requiredTier, eventTitle }: TierUpgradeCardProps) {
-  const { user } = useUser()
+  const { tier: currentTier, upgradeTier, isLoading } = useUserTier()
   const [isUpgrading, setIsUpgrading] = useState(false)
   const [upgradeSuccess, setUpgradeSuccess] = useState(false)
-
-  // Get current tier - check both metadata sources with fallback
-  const currentTier = (user?.publicMetadata?.tier as TierType) || (user?.unsafeMetadata?.tier as TierType) || "free"
+  const [error, setError] = useState<string | null>(null)
 
   const availableUpgrades = tierUpgrades[currentTier]
 
-  // Initialize user with default tier if none exists
-  useEffect(() => {
-    if (user && !user.publicMetadata?.tier && !user.unsafeMetadata?.tier) {
-      user
-        .update({
-          unsafeMetadata: {
-            ...user.unsafeMetadata,
-            tier: "free",
-          },
-        })
-        .catch(console.error)
-    }
-  }, [user])
-
   const handleUpgrade = async (newTier: TierType) => {
-    if (!user) return
-
     setIsUpgrading(true)
     setUpgradeSuccess(false)
+    setError(null)
 
     try {
-      // Only update unsafeMetadata (client-side metadata)
-      await user.update({
-        unsafeMetadata: {
-          ...user.unsafeMetadata,
-          tier: newTier,
-        },
-      })
+      const result = await upgradeTier(newTier)
 
-      console.log(`Successfully upgraded to ${newTier} tier!`)
-      setUpgradeSuccess(true)
+      if (result.success) {
+        console.log(`Successfully upgraded to ${newTier} tier!`)
+        setUpgradeSuccess(true)
 
-      // Show success message briefly before reload
-      setTimeout(() => {
-        window.location.reload()
-      }, 1500)
+        // Show success message briefly before reload
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000)
+      } else {
+        setError(result.error || `Failed to upgrade to ${newTier} tier`)
+      }
     } catch (error) {
       console.error("Failed to upgrade tier:", error)
-      alert(`Failed to upgrade to ${newTier} tier. Please try again or contact support.`)
+      setError("Network error. Please try again.")
     } finally {
       setIsUpgrading(false)
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="group relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100 rounded-2xl border-2 border-dashed border-slate-300 shadow-lg">
+        <div className="relative p-8 text-center">
+          <div className="animate-pulse">
+            <div className="bg-slate-200 rounded-full h-16 w-16 mx-auto mb-6"></div>
+            <div className="bg-slate-200 rounded h-6 w-48 mx-auto mb-4"></div>
+            <div className="bg-slate-200 rounded h-4 w-32 mx-auto"></div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   // Show success state
@@ -108,6 +103,29 @@ export function TierUpgradeCard({ requiredTier, eventTitle }: TierUpgradeCardPro
               Welcome to your new tier!
             </div>
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="relative overflow-hidden bg-gradient-to-br from-red-50 via-red-50 to-red-100 rounded-2xl border border-red-200 shadow-lg">
+        <div className="relative p-8 text-center">
+          <div className="flex justify-center mb-6">
+            <div className="bg-red-500 rounded-full p-3">
+              <Lock className="h-8 w-8 text-white" />
+            </div>
+          </div>
+          <h3 className="text-2xl font-bold text-red-800 mb-3">Upgrade Failed</h3>
+          <p className="text-red-700 mb-4">{error}</p>
+          <button
+            onClick={() => setError(null)}
+            className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     )
