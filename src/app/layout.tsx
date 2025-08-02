@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Tier-Based Event Showcase',
   description: 'Discover events based on your membership tier',
+  icons:{
+    icon: '/favicon.ico',
+  }
 };
 
 export default function RootLayout({
