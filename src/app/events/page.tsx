@@ -132,10 +132,10 @@ export default function EventsPage() {
                 <div className="text-3xl font-bold text-white mb-2">{accessibleEvents.length}</div>
                 <div className="text-blue-100 font-medium">Available Events</div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                 <div className="text-3xl font-bold text-white mb-2">{inaccessibleEvents.length}</div>
                 <div className="text-blue-100 font-medium">Premium Events</div>
-              </div>
+              </div> 
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                 <div className="text-3xl font-bold text-white mb-2">{events.length}</div>
                 <div className="text-blue-100 font-medium">Total Events</div>
