@@ -61,7 +61,7 @@ This application allows authenticated users to view events based on their subscr
    NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/events
 
 Create a `.env.local` file in the root directory:
-   # Supabase
+    Supabase
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
    SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
